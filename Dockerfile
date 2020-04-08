@@ -3,6 +3,10 @@ FROM alpine:3.11.5 AS base-image
 # Allow HOME to be set at runtime
 ENV HOME /tmp
 
+# Runtime can set GIT_CRYPT_PATH to the path to the docker wrapper script in
+# the repo
+ENV GIT_CRYPT_PATH=""
+
 #
 # Base layer - install packages needed in final image
 #
@@ -41,5 +45,7 @@ RUN curl -L https://github.com/AGWA/git-crypt/archive/$VERSION.tar.gz | tar zxv 
 FROM base-image
 
 COPY --from=build /usr/local/bin/git-crypt /usr/local/bin/git-crypt
+ADD entrypoint.sh /entrypoint.sh
+RUN chmod 755 /entrypoint.sh
 
-ENTRYPOINT ["/usr/local/bin/git-crypt"]
+ENTRYPOINT ["/entrypoint.sh"]
